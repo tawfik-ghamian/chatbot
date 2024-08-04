@@ -10,8 +10,6 @@ from llama_index.llms.groq import Groq
 from semantic_router.encoders import HuggingFaceEncoder
 
 st.title("🤖 Welcome in :blue[_fam_ _properties_] ChatBot :sunglasses:")
-st.title("_Streamlit_ is ")
-
 
 index_name = "fam-rag"
 docs = []
