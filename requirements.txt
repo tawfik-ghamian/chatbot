@@ -3,4 +3,3 @@ pinecone-client==4.1.0
 semantic-router[local]==0.0.45
 llama-index-llms-groq
 llama-index
-llama-cpp-python
