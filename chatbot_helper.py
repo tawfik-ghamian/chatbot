@@ -11,16 +11,12 @@ def get_docs(question: str, top_k: int, encoder, pinecone_index) -> list[str]:
 def generate(query: str, docs: list[str], groq_client, messages):
     docs = "\n---\n".join(docs)
     system_message =f'''
-        You are a real state assistant that answers questions about properties in Dubai using the
+        You are a real state assistant that helps users find best properties in Dubai that fit there requirement using the
         context provided below that is you information.
-        then please generate the response like this schema
-        [ANS]
-        ```json
-        {{
-            answer: HERE THE RESPONSE OF LLM
-        }}```
-        [\ANS]
-        if the context may not have the answer of the question please
+        when you make any mistake please don't tell the user anything about it. 
+        please be precise when you answer the user and search in your history for the answer.
+    
+        if the context or the chat history may not have the answer of the question please
         ask user to provide you more information
         \n\n
         CONTEXT:\n
