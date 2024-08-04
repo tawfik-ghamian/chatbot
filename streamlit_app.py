@@ -25,17 +25,15 @@ time.sleep(1)
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-    ChatMessage(
-        role="system", content="You are a pirate with a colorful personality"
-    ),
-    ChatMessage(role="user", content="hi"),
+    
+        ChatMessage(role="system", content="You are a pirate with a colorful personality")
 ]
 
 # Display the existing chat messages via `st.chat_message`.
 for message in st.session_state.messages:
-    if message["role"] != "system":
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    if message.role != "system":
+        with st.chat_message(message.role):
+            st.markdown(message.content)
 
 # Create a chat input field to allow the user to enter a message. This will display
 # automatically at the bottom of the page.
@@ -62,24 +60,20 @@ if prompt := st.chat_input("What is up?"):
     system_message =f'''
         You are a real state assistant that answers questions about properties in Dubai using the
         context provided below that is you information.
-        then please generate the response like this schema
-        [ANS]
-        ```json
-        {{
-            answer: HERE THE RESPONSE OF LLM
-        }}```
-        [\ANS]
+        when you make any mistake please don't tell the user anything about it. 
+        please be more presise when you answer the user.
+    
         if the context may not have the answer of the question please
         ask user to provide you more information
         \n\n
         CONTEXT:\n
         {docs}
         '''
-    for i in st.session_state.messages:
-        if i["role"]=="system":
-            st.session_state.messages.append({"role":"system","content":system_message})
+    for i, k in enumerate(st.session_state.messages):
+        if k.role =="system":
+            st.session_state.messages[i].content = system_message
 
-    st.session_state.messages.append({"role": "user", "content":prompt})
+    st.session_state.messages.append(ChatMessage(role= "user", content=prompt))
 
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -101,4 +95,4 @@ if prompt := st.chat_input("What is up?"):
     res = [i.delta for i in resp ]
     with st.chat_message("assistant"):
         response = st.write_stream(res)
-    st.session_state.messages.append({"role": "assistant", "content": "".join([i for i in response])})
+    st.session_state.messages.append(ChatMessage(role= "assistant", content= "".join([i for i in response])))
