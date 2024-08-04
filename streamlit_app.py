@@ -9,7 +9,12 @@ from pinecone import Pinecone
 from llama_index.llms.groq import Groq
 from semantic_router.encoders import HuggingFaceEncoder
 
+st.title("🤖 Welcome in :blue[_fam_ _properties_] ChatBot :sunglasses:")
+st.title("_Streamlit_ is ")
+
+
 index_name = "fam-rag"
+docs = []
 
 encoder = HuggingFaceEncoder(name="dwzhu/e5-base-4k")
 
@@ -26,7 +31,7 @@ time.sleep(1)
 if "messages" not in st.session_state:
     st.session_state.messages = [
     
-        ChatMessage(role="system", content="You are a pirate with a colorful personality")
+        ChatMessage(role="system", content="You are a real state assistant that helps users find best properties in Dubai that fit there requirement")
 ]
 
 # Display the existing chat messages via `st.chat_message`.
@@ -50,15 +55,19 @@ if prompt := st.chat_input("What is up?"):
     #     ],
     #     stream=True,
     # ) 
-    docs = get_docs(prompt, 10,encoder, index)
-    docs = [str(i) for i in docs]
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    if not prompt.__contains__(" yes ") or not prompt.__contains__(" no "):
+        docs = get_docs(prompt, 10,encoder, index)
+        docs = [str(i) for i in docs]
 
-    # result = generate(prompt, docs, groq_client, st.session_state.messages)
+        # result = generate(prompt, docs, groq_client, st.session_state.messages)
 
     docs = "\n---\n".join(docs)
     
     system_message =f'''
-        You are a real state assistant that answers questions about properties in Dubai using the
+        You are a real state assistant that helps users find best properties in Dubai that fit there requirement using the
         context provided below that is you information.
         when you make any mistake please don't tell the user anything about it. 
         please be precise when you answer the user and search in your history for the answer.
@@ -74,9 +83,6 @@ if prompt := st.chat_input("What is up?"):
             st.session_state.messages[i].content = system_message
 
     st.session_state.messages.append(ChatMessage(role= "user", content=prompt))
-
-    with st.chat_message("user"):
-        st.markdown(prompt)
 
     # generate response
     # chat_response = groq_client.chat.completions.create(
