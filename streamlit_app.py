@@ -101,4 +101,5 @@ if prompt := st.chat_input("What is up?"):
     res = [i.delta for i in resp ]
     with st.chat_message("assistant"):
         response = st.write_stream(res)
+
     st.session_state.messages.append(ChatMessage(role= "assistant", content= "".join([i for i in response])))
