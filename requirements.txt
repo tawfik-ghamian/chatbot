@@ -1,2 +1,4 @@
 streamlit
-openai
+groq==0.8.0
+pinecone-client==4.1.0
+semantic-router[local]==0.0.45

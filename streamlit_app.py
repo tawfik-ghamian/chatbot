@@ -1,56 +1,104 @@
 import streamlit as st
-from openai import OpenAI
+import os
+import getpass
+import time
+from chatbot_helper import generate, get_docs
+from llama_index.core.llms import ChatMessage
+# from groq import Groq
+from pinecone import Pinecone
+from llama_index.llms.groq import Groq
+from semantic_router.encoders import HuggingFaceEncoder
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
-)
+index_name = "fam-rag"
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+encoder = HuggingFaceEncoder(name="dwzhu/e5-base-4k")
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+# groq_client = Groq(api_key="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")
+llm = Groq(model="llama3-70b-8192", api_key="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")
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# configure client
+pc = Pinecone(api_key="595c294f-e189-4051-9023-35461b30dc47")
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
+index = pc.Index(index_name)
+time.sleep(1)
+
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+    ChatMessage(
+        role="system", content="You are a pirate with a colorful personality"
+    ),
+    ChatMessage(role="user", content="hi"),
+]
+
+# Display the existing chat messages via `st.chat_message`.
+for message in st.session_state.messages:
+    if message["role"] != "system":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+# Create a chat input field to allow the user to enter a message. This will display
+# automatically at the bottom of the page.
+if prompt := st.chat_input("What is up?"):
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    # Store and display the current prompt.    
 
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
+    # Generate a response using the OpenAI API.
+    # stream = client.chat.completions.create(
+    #     model="gpt-3.5-turbo",
+    #     messages=[
+    #         {"role": m["role"], "content": m["content"]}
+    #         for m in st.session_state.messages
+    #     ],
+    #     stream=True,
+    # ) 
+    docs = get_docs(prompt, 10,encoder, index)
+    docs = [str(i) for i in docs]
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+    # result = generate(prompt, docs, groq_client, st.session_state.messages)
+
+    docs = "\n---\n".join(docs)
+    
+    system_message =f'''
+        You are a real state assistant that answers questions about properties in Dubai using the
+        context provided below that is you information.
+        then please generate the response like this schema
+        [ANS]
+        ```json
+        {{
+            answer: HERE THE RESPONSE OF LLM
+        }}```
+        [\ANS]
+        if the context may not have the answer of the question please
+        ask user to provide you more information
+        \n\n
+        CONTEXT:\n
+        {docs}
+        '''
+    for i in st.session_state.messages:
+        if i["role"]=="system":
+            st.session_state.messages.append({"role":"system","content":system_message})
+
+    st.session_state.messages.append({"role": "user", "content":prompt})
+
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # generate response
+    # chat_response = groq_client.chat.completions.create(
+    #     model="llama3-70b-8192",
+    #     messages=[
+    #         {"role": m["role"], "content": m["content"]}
+    #         for m in st.session_state.messages
+    #     ],
+    #     stream=True
+    # )
+    resp = llm.stream_chat(st.session_state.messages)
+
+    # Stream the response to the chat using `st.write_stream`, then store it in 
+    # session state.
+    print(resp)
+    res = [i.delta for i in resp ]
+    with st.chat_message("assistant"):
+        response = st.write_stream(res)
+    st.session_state.messages.append({"role": "assistant", "content": "".join([i for i in response])})
