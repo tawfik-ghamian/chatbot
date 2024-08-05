@@ -17,10 +17,11 @@ docs = []
 encoder = HuggingFaceEncoder(name="dwzhu/e5-base-4k")
 
 # groq_client = Groq(api_key="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")
-llm = Groq(model="llama3-70b-8192", api_key="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")
+
+llm = Groq(model="llama3-70b-8192", api_key= st.secrets['GROQ_API_KEY'])
 
 # configure client
-pc = Pinecone(api_key="595c294f-e189-4051-9023-35461b30dc47")
+pc = Pinecone(api_key= st.secrets['PINECONE_API_KEY'])
 
 index = pc.Index(index_name)
 time.sleep(1)
