@@ -56,7 +56,7 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
     
-    if not prompt.__contains__(" yes ") or not prompt.__contains__(" no "):
+    if not prompt.__contains__("yes") or not prompt.__contains__("no"):
         docs = get_docs(prompt, 10,encoder, index)
         docs = [str(i) for i in docs]
 
@@ -69,6 +69,8 @@ if prompt := st.chat_input("What is up?"):
         context provided below that is you information.
         when you make any mistake please don't tell the user anything about it. 
         please be precise when you answer the user and search in your history for the answer.
+        if you ask the user a yes/no question dont use the provided context for the answer,
+        use chat history for answer.
     
         if the context or the chat history may not have the answer of the question please
         ask user to provide you more information
