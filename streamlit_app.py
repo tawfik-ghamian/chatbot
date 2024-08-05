@@ -56,8 +56,8 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
     
-    if not prompt.__contains__("yes") or not prompt.__contains__("no"):
-        docs = get_docs(prompt, 10,encoder, index)
+    if not prompt.__contains__("Yes") or not prompt.__contains__("No"):
+        docs = get_docs(prompt, 3,encoder, index)
         docs = [str(i) for i in docs]
 
         # result = generate(prompt, docs, groq_client, st.session_state.messages)
@@ -65,14 +65,12 @@ if prompt := st.chat_input("What is up?"):
     docs = "\n---\n".join(docs)
     
     system_message =f'''
-        You are a real state assistant that helps users find best properties in Dubai that fit there requirement using the
-        context provided below that is you information.
-        when you make any mistake please don't tell the user anything about it. 
-        please be precise when you answer the user and search in your history for the answer.
-        if you ask the user a yes/no question dont use the provided context for the answer,
-        use chat history for answer.
+        You are a real state assistant act as that and help users find best properties in Dubai that fit there requirement using the
+        context and chat history provided below. 
+        please be precise when you answer the user and get the answer from your history if the question is not related to the context.
+        if you ask the user a yes/no question do not use the provided context for response, use chat history for answer instead.
     
-        if the context or the chat history may not have the answer of the question please
+        if the context or the chat history may not have the answer of the question get the answer from chat history if not related please
         ask user to provide you more information
         \n\n
         CONTEXT:\n
@@ -94,6 +92,7 @@ if prompt := st.chat_input("What is up?"):
     #     stream=True
     # )
     resp = llm.stream_chat(st.session_state.messages)
+    print(st.session_state.messages)
 
     # Stream the response to the chat using `st.write_stream`, then store it in 
     # session state.
