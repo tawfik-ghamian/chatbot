@@ -1,4 +1,5 @@
 --upgrade
+apt update && sudo apt upgrade
 --only-upgrade build-essential
 --only-upgrade pkg-config
 --only-upgrade cmake
