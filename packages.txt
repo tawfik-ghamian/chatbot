@@ -1,6 +1,6 @@
+upgrade
 build-essential
 pkg-config
 libpthread-stubs0-dev
-libpthread
 stdc++
 --only-upgrade 
