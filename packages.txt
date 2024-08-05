@@ -1,4 +1,4 @@
-apt --update
+apt-get --update
 --upgrade
 --only-upgrade build-essential
 --only-upgrade pkg-config
