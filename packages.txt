@@ -1,8 +1,8 @@
-apt-get --update
+--only-update
 --upgrade
+--only-upgrade 
 --only-upgrade build-essential
 --only-upgrade pkg-config
 --only-upgrade cmake
 --only-upgrade libpthread-stubs0-dev
 --only-upgrade stdc++
---only-upgrade 
