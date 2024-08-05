@@ -1,5 +1,3 @@
---only-update
---upgrade
 --only-upgrade 
 --only-upgrade build-essential
 --only-upgrade pkg-config
