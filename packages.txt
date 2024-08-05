@@ -1,4 +1,5 @@
 build-essential
 pkg-config
---only-upgrade gcc
---only-upgrade g++
+pthread
+stdc++
+--only-upgrade 
