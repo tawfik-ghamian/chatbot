@@ -1,5 +1,2 @@
-update
 build-essential
 pkg-config
-gcc-11
-g++-11
