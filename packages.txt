@@ -1,4 +1,4 @@
 build-essential
 pkg-config
---only-upgrade gcc-11
---only-upgrade g++-11
+--only-upgrade gcc
+--only-upgrade g++
